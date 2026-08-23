@@ -151,10 +151,4 @@ better than random."
 | uae_082019_1 | 3,349 | 6,638 | 0.63 | 1.3x | **0.89** | **2.6x** |
 | venezuela_201901_2 | 501 | 4,316 | 0.18 | 0.8x | 0.24 | 2.4x |
 
-![AUC-ROC comparison, count-based vs. continuous scoring](docs/figures/auc_roc_comparison.png)
 
-![AUC-PR lift over baseline, min_pvalue_fdr](docs/figures/auc_pr_lift.png)
-
-Explore interactively in `evaluation/results.ipynb`.
-
-# null-model-coord
