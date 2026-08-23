@@ -2,39 +2,6 @@
 AUC evaluation using per-user MINIMUM p-value as a continuous score,
 instead of max_n_signal's discrete significant-indicator count.
 
-This is a companion to max_n_signal_eval.py, not a replacement:
-max_n_signal.py/max_n_signal_eval.py binarize each edge first (is this
-pair's p-value below alpha?) and then COUNT how many indicators clear
-that bar per user -- which is why their threshold sweep only has as many
-achievable points as the count can take (0/1/2/... in practice, often
-just 3-4 distinct values, since only a few indicators end up contributing
-edges). This script skips the binarize-then-count step entirely: for
-each user, it keeps the single lowest p-value they have to ANY other
-user across ANY indicator (their strongest piece of coordination
-evidence) and uses that p-value directly as the continuous classifier
-score. The threshold sweep is over p-value itself:
-
-    predict IO if min_pvalue <= t
-
-for every t actually achieved in the data -- since the null model's
-p-values are drawn from a grid of (k+1)/(NUM_OF_TIMES+1) values (NOT
-truly continuous, but far finer than max_n_signal's small integer range),
-this gives a much higher-resolution precision/recall tradeoff to operate
-on than max_n_signal's threshold sweep does.
-
-'client'/tweet_client_name is excluded from INDICATORS, same as the rest
-of evaluation/ -- see evaluation/README.md.
-
-Two settings, matching max_n_signal.py's naming:
-    min_pvalue_fdr     -- per-indicator Benjamini-Hochberg FDR-corrected
-                           p-value, minimum taken across all of a user's
-                           edges across all indicators
-    min_pvalue_no_fdr  -- same, using the raw (uncorrected) p-value
-
-Reads null_model/pipeline.py's output directly (NOT max_n_signal.py's
-output -- this needs the per-edge p-values, not the already-aggregated
-count), so only null_model/pipeline.py needs to have been run first.
-
 Usage:
     python evaluation/min_pvalue_eval.py
     python evaluation/min_pvalue_eval.py --campaigns spain_082019_1
@@ -67,8 +34,7 @@ RESULTS_DIR  = os.path.join(REPO_ROOT, 'results', 'min_pvalue_eval')  # this scr
 ALPHA        = 0.05  # only used as a reference line in output, not to filter -- see module docstring
 FILE_SUFFIX  = 'tpa0_tpu10_acc0-0'
 
-# must match null_model/pipeline.py's INDICATOR_CONFIG keys exactly --
-# 'client' (tweet_client_name) intentionally excluded, see evaluation/README.md
+# must match null_model/pipeline.py's INDICATOR_CONFIG keys exactly
 INDICATORS = ['hashtag', 'retweet_userid', 'retweet_tweetid', 'url', 'sync']
 
 # Max false-positive rate defining the pAUC region [0, PAUC_MAX_FPR] --
@@ -135,9 +101,7 @@ def load_full_user_universe(campaign: str, raw_data_dir: str = RAW_DATA_DIR,
 
 
 # ---------------------------------------------------------------------------
-# per-indicator loading + FDR correction (no significance filtering here --
-# unlike max_n_signal.py, this script needs EVERY p-value, not just the
-# ones below alpha, since it's taking a minimum over all of them)
+# per-indicator loading + FDR correction 
 # ---------------------------------------------------------------------------
 
 def load_indicator_pvalues(campaign: str, indicator: str, data_dir: str = DATA_DIR,

@@ -55,12 +55,7 @@ ALPHA        = 0.05
 #   {RAW_DATA_DIR}/{campaign}_{FILE_SUFFIX}.pkl.gz
 FILE_SUFFIX = 'tpa0_tpu10_acc0-0'
 
-# must match null_model/pipeline.py's INDICATOR_CONFIG keys exactly --
-# retweet is split into two indicators. 'client' (tweet_client_name) is
-# intentionally excluded from detection -- it isn't a coordination signal
-# in the same sense as the others (huge numbers of unrelated accounts
-# legitimately share the same client app), so it's dropped here rather
-# than compared with/without as before.
+# must match null_model/pipeline.py's INDICATOR_CONFIG keys exactly 
 INDICATORS = ['hashtag',
               'retweet_userid', 'retweet_tweetid',
               'url', 'sync'
@@ -166,8 +161,7 @@ def get_significant_edges(campaign: str, data_dir: str = DATA_DIR, alpha: float 
 
 
 # ---------------------------------------------------------------------------
-# n_signal per edge -> max_n_signal per user (vectorized: groupby
-# instead of iterrows(), per max_n_signal_pipeline_mpi.py)
+# n_signal per edge -> max_n_signal per user
 # ---------------------------------------------------------------------------
 
 def compute_max_n_signal(sig_edges: dict) -> pd.DataFrame:
@@ -276,9 +270,7 @@ def fill_missing_users_with_zero(df_max: pd.DataFrame, full_universe: pd.DataFra
 
 
 # ---------------------------------------------------------------------------
-# 6. Labels -- already attached by null_model/pipeline.py, reuse directly
-# (vectorized: dict(zip(...)) instead of iterrows(), per
-# max_n_signal_pipeline_mpi.py -- same left-to-right overwrite order)
+# 6. Labels -- already attached by null_model/pipeline.py
 # ---------------------------------------------------------------------------
 
 def get_labels_from_null_model_output(campaign: str, data_dir: str = DATA_DIR,
@@ -286,10 +278,7 @@ def get_labels_from_null_model_output(campaign: str, data_dir: str = DATA_DIR,
     """
     null_model/pipeline.py already attaches data_type_i / data_type_j to
     every saved edge file (derived from the raw tweet data's confirmed
-    'data_type' column). Rather than re-deriving labels from a separate
-    IO/control folder structure that may not even exist for this dataset,
-    pull labels directly out of whichever edge file(s) are available --
-    they all carry the same underlying per-user labels.
+    'data_type' column).
 
     Returns dict: accountid (str) -> 'io' or 'control'
     """
@@ -357,8 +346,7 @@ def run_max_n_signal_pipeline(campaigns: list,
                                results_dir: str = RESULTS_DIR,
                                alpha: float = ALPHA) -> pd.DataFrame:
     """
-    For each campaign, computes max_n_signal under two settings (both over
-    INDICATORS, which excludes 'client'/tweet_client_name):
+    For each campaign, computes max_n_signal under two settings:
         max_n_signal_fdr     -- FDR-corrected
         max_n_signal_no_fdr  -- raw pvalue < alpha
 
