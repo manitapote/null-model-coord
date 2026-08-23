@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "null-model-coord"
+version = "0.1.0"
+description = "Coordination detection via a permutation-based null model (IO vs. control accounts)"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "pandas",
+    "scipy",
+    "scikit-learn",
+    "statsmodels",
+    "tqdm",
+    "matplotlib",
+]
+
+[project.optional-dependencies]
+mpi = ["mpi4py"]
+notebook = ["jupyter"]
+
+[project.scripts]
+null-model-filter = "filtering.pipeline:main"
+null-model-run = "null_model.pipeline:main"
+null-model-eval-min-pvalue = "evaluation.min_pvalue_eval:main"
+null-model-eval-max-n-signal = "evaluation.max_n_signal_eval:main"
+
+[tool.setuptools.packages.find]
+include = ["filtering*", "null_model*", "evaluation*"]
