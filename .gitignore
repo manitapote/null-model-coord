@@ -20,7 +20,9 @@ env/
 !/data/**/
 !/data/**/.gitkeep
 
-/results/
+/results/**
+!/results/**/
+!/results/**/.gitkeep
 
 # --- OS / editor cruft ---
 .DS_Store
