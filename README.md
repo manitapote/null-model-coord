@@ -112,11 +112,29 @@ filtering/, null_model/, evaluation/   the runnable, maintained pipeline.
 
 ## Setup
 
+Installed as an editable package (`pyproject.toml`), so `filtering`,
+`null_model`, and `evaluation` are importable from anywhere (a notebook,
+another script) as well as runnable as standalone scripts.
+
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r requirements.txt
+pip install -e .              # add extras as needed: -e ".[mpi,notebook]"
 ```
+
+Once installed, the three pipeline stages are available anywhere as console
+scripts, filter the raw data, run the null model on the filtered output,
+then evaluate:
+
+```bash
+null-model-filter --campaigns spain_082019_1        # data/raw -> data/filtered, results/
+null-model-run --campaigns spain_082019_1           # results/ -> results/null_model/ (p-values)
+null-model-eval-min-pvalue --campaigns spain_082019_1  # results/null_model/ -> results/min_pvalue_eval/
+```
+
+Each also runs equivalently as `python filtering/pipeline.py`, `python
+null_model/pipeline.py`, `python evaluation/min_pvalue_eval.py` — see
+[Usage](#usage) below for the full CLI and library options.
 
 ## Usage
 
@@ -135,7 +153,19 @@ python evaluation/max_n_signal.py
 python evaluation/max_n_signal_eval.py
 ```
 
-Each stage script also runs standalone with its own.
+Each stage script also runs standalone with its own CLI, and the same
+entry points are installed as console scripts after `pip install -e .`:
+`null-model-filter`, `null-model-run`, `null-model-eval-min-pvalue`,
+`null-model-eval-max-n-signal`.
+
+### As a library
+
+```python
+from evaluation.min_pvalue_eval import evaluate_campaign
+from null_model.pipeline import run_campaign_indicator
+
+df = evaluate_campaign("spain_082019_1")
+```
 
 ## Results
 
